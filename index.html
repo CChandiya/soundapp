@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Response Test</title>
+   <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div id="audioControls">
+        <audio id="audio1" src="C:\Users\91944\Downloads\mild frequency.wav"></audio>
+        <audio id="audio2" src="C:\Users\91944\Downloads\medium frequency.mp3" class="hidden"></audio>
+        <audio id="audio3" src="C:\Users\91944\Downloads\high frequency.mp3" class="hidden"></audio>
+        <button onclick="playAudio(currentAudio)">Play Current Audio</button>
+        <button id="yesBtn" onclick="recordResponse('yes')">Yes</button>
+        <button id="noBtn" onclick="recordResponse('no')">No</button>
+    </div>
+    <div id="result"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

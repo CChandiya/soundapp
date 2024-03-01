@@ -1,0 +1,566 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<!-- <title>Ultimate Online Hearing Test — Independent • Reliable • Free
+					Online Hearing Test + Free Audiogram Printout
+		</title> -->
+		<title>Online Hearing Test & Audiogram Printout</title> 
+<meta name="description" content="The most accurate hearing test on the web. Fast, reliable, independent, online, and free." />
+		<meta name="author" content="Dr. Ir. St&eacute;phane Pigeon">
+		<meta name="robots" content="index, follow">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!-- icons -->
+		<link rel="image_src" href="./IMG/ear.png" /> 
+		<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+		<link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+		<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+		<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+		<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+		<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+		<link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+		<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+		<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+		<link rel="icon" type="image/png" href="/favicon-194x194.png" sizes="194x194">
+		<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+		<link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+		<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+		<link rel="manifest" href="/manifest.json">
+		<meta name="msapplication-TileColor" content="#da532c">
+		<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+		<meta property="og:image" content="https://hearingtest.online/IMG/ear.png" />
+		<meta name="theme-color" content="#ffffff">
+		
+		<!-- Social -->
+		<LINK REL="image_src" href="/IMG/ear.png" />
+		<meta name="twitter:card" content="summary_large_image">
+		<meta name="twitter:site" content="@audiosampling">
+		<meta name="twitter:title" content="HearingTest.online - Unbiased & Free Online Hearing Test">
+		<meta name="twitter:description" content="The most accurate online Hearing Test on the Internet. Bookmark this page and run the test periodically to monitor your hearing.">
+		<meta name="twitter:image:src" content="https://hearingtest.online/IMG/ear.png">
+
+		<!-- Override CSS file - add your own CSS rules -->
+		<link rel="stylesheet" href="styles.css">
+		
+		<!-- Google Fonts -->
+		<link href='https://fonts.googleapis.com/css?family=Raleway:400|Handlee' rel='stylesheet' type='text/css'>
+		
+		<!-- Audiogram Javascript Code -->
+		<script type="text/javascript">
+
+var LRmode="B"; // (B)oth (L)eft or (R)ight
+var allHearingBands=[250,375,500,750,1000,1500,2000,3000,4000,6000,8000];
+var allHearingDBHL=[-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80];
+var selHearingBands=[250,500,1000,2000,4000,8000];
+var selHearingDBHL=[-5,0,5,10,15,20,30,40,50,60,70,80];
+var printURL, backURL;
+var overlay=0;
+var fileExt=".mp3";
+var fileSuffixForLRMode="";
+var fileNameArray=new Array();
+var audioArray=new Array();
+var allAudioButtons=new Array();
+var resultMatrix=new Array();
+
+// for IE
+Math.log10 = Math.log10 || function(x) {
+  return Math.log(x) * Math.LOG10E;
+};
+
+function init(){
+	// initialize result Matrix
+	resultMatrix["B"]=new Array();
+	resultMatrix["R"]=new Array();
+	resultMatrix["L"]=new Array();
+	for (var i=0; i < allHearingBands.length; i++){ 
+		resultMatrix["B"][allHearingBands[i]] = new Array();
+		resultMatrix["L"][allHearingBands[i]] = new Array();
+		resultMatrix["R"][allHearingBands[i]] = new Array();
+	}
+	// set to all zeroes
+	initResultMatrix();
+	checkAudioFileCompatibility();
+	tableGen(selHearingBands,selHearingDBHL);
+	checkMatrixDataFromURL();
+}
+
+function initPrint(){
+	// initialize result Matrix
+	resultMatrix["B"]=new Array();
+	resultMatrix["R"]=new Array();
+	resultMatrix["L"]=new Array();
+	for (var i=0; i < allHearingBands.length; i++){ 
+		resultMatrix["B"][allHearingBands[i]] = new Array();
+		resultMatrix["L"][allHearingBands[i]] = new Array();
+		resultMatrix["R"][allHearingBands[i]] = new Array();
+	}
+	// set to all zeroes
+	initResultMatrix();
+	checkMatrixDataFromURL();
+}
+
+function tableGen(freqs,dBHLs,color) {
+	var content="<table class='sound'>";
+	for (var i=0; i < dBHLs.length; i++) {
+		if (dBHLs[i]==-5) content+="<tr><td class='description' colspan='"+freqs.length+"'>Almost silent</td></tr>";
+		if (dBHLs[i]==5) content+="<tr><td class='description' colspan='"+freqs.length+"'>Quiet</td></tr>";
+		if (dBHLs[i]==30) content+="<tr><td class='description' colspan='"+freqs.length+"'>Louder</td></tr>";
+		if (dBHLs[i]==70) content+="<tr><td class='description' colspan='"+freqs.length+"'>VERY LOUD</td></tr>";
+		content+="<tr>";
+		for (var j=0; j < freqs.length; j++) {
+			content+="<td><span class='audioButton' id='hearingTest.online.warble_"+freqs[j]+"_"+dBHLs[i]+"' onclick='play(this.id)' title='Click to Play "+freqs[j]+"Hz@"+dBHLs[i]+"'></td>";
+		}
+		content+="</tr>";
+	}
+	content+="</table>";
+	document.getElementById('theTable').innerHTML = content;
+	allAudioButtons = document.getElementsByClassName('audioButton');
+	for (var k = 0; k<allAudioButtons.length; k++) allAudioButtons[k].style.backgroundColor=color;
+}
+
+function initResultMatrix(){
+	for (var i=0; i < allHearingBands.length; i++) for (var j=0; j < allHearingDBHL.length; j++) {
+		resultMatrix["B"][allHearingBands[i]][allHearingDBHL[j]] = 0;
+		resultMatrix["L"][allHearingBands[i]][allHearingDBHL[j]] = 0;
+		resultMatrix["R"][allHearingBands[i]][allHearingDBHL[j]] = 0;
+	}
+}
+
+function updateResultMatrix(soundFile) {
+	var x,y;
+	var tmp=soundFile.split("_");
+	x=tmp[1];y=tmp[2];
+	for (var j=0; j < allHearingDBHL.length; j++) resultMatrix[LRmode][x][allHearingDBHL[j]] = 0; 
+	resultMatrix[LRmode][x][y]=1;
+	plotResultMatrix();
+}
+
+function clearTable(){
+	for (var i=0; i < allHearingBands.length; i++) {
+		document.getElementById('overB'+allHearingBands[i]).innerHTML="";
+		document.getElementById('overL'+allHearingBands[i]).innerHTML="";	
+		document.getElementById('overR'+allHearingBands[i]).innerHTML="";	
+		}
+	initResultMatrix();
+}
+
+function checkMatrixDataFromURL() {
+	var matrixStr = "";
+	var historicStr = "";  // earlier ver
+	if (matrixStr.length>0) {
+		var chunks=matrixStr.split("n");
+		for (var i=1; i < chunks.length; i++){ 
+			var tmp=chunks[i].split('_');
+			resultMatrix[tmp[0]][tmp[1]][tmp[2]]=1;
+		}
+		plotResultMatrix("B");plotResultMatrix("R");plotResultMatrix("L");
+	}
+	else if (historicStr.length>0) {
+		// next lines are for compatibility with data saved with earlier version
+		var historicF=["250","500","1000","2000","4000","8000"];
+		var historicDBHL=["-10","-5","0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80"];
+		for (var i=0; i < historicF.length; i++){
+			tmp=getUrlVars()["b"+i];
+			if ((tmp)&&(tmp<historicDBHL.length)) resultMatrix["B"][historicF[i]][historicDBHL[tmp]]=1; 
+			}
+		plotResultMatrix("B");
+		}
+}
+
+function getUrlVars() {
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {vars[key] = value;});
+	return vars;
+}
+
+function plotResultMatrix(mode) {
+
+	mode = mode || LRmode;
+
+	var top="";
+	var left="";
+	var sign,color,offset;
+	
+	switch(mode){
+		case "B": sign="+"; color="#080"; break;
+		case "L": sign="x"; color="#00D"; break;
+		case "R": sign="o"; color="#D00"; break;
+	}
+	
+	for (var i=0; i < allHearingBands.length; i++)
+	for (var j=0; j < allHearingDBHL.length; j++)
+		
+		if(resultMatrix[mode][allHearingBands[i]][allHearingDBHL[j]]!=0){
+			top=""+Math.round(63+3.63*allHearingDBHL[j])+"px";
+			left=""+Math.round(-203+121*Math.log10(allHearingBands[i]))+"px";
+			document.getElementById('over'+mode+allHearingBands[i]).innerHTML=sign;
+			document.getElementById('over'+mode+allHearingBands[i]).style.top=top;
+			document.getElementById('over'+mode+allHearingBands[i]).style.left=left;
+			document.getElementById('over'+mode+allHearingBands[i]).style.color=color;
+		}
+	generatePrintURL();
+}
+
+function generatePrintURL(){
+	var str="";
+	var modes=["B","L","R"];
+    for (var k=0; k < modes.length; k++)
+	for (var i=0; i < allHearingBands.length; i++)
+	for (var j=0; j < allHearingDBHL.length; j++)
+		if(resultMatrix[modes[k]][allHearingBands[i]][allHearingDBHL[j]]!=0){
+			str=str+"n"+modes[k]+"_"+allHearingBands[i]+"_"+allHearingDBHL[j];
+		}
+	printURL="https://hearingtest.online/myAudiogram.php?s="+str;
+	backURL="https://hearingtest.online/hearingTest.php?s="+str;
+}
+
+function checkCompleted(){
+	var tot=0;
+	for (var i=0; i < allHearingBands.length; i++) for (var j=0; j < allHearingDBHL.length; j++) tot+=resultMatrix[LRmode][allHearingBands[i]][allHearingDBHL[j]]; 
+	if (tot>5){
+		window.location.assign(printURL);
+		}
+	else{
+		alert("Please complete the test first (more columns need to be investigated). The audiogram must show 6 marks at least.")
+	}
+}
+
+function overlaySwitch(){
+	switch(overlay){
+	case 0:
+		document.getElementById('overlay').innerHTML="<img src='/IMG/over_speech.png' alt='audiogram speech' width='330px'>";
+		overlay=1;
+		break;
+	case 1:
+		document.getElementById('overlay').innerHTML="<img src='/IMG/over_icons.png' alt='audiogram icons' width='330px'>";
+		overlay=2;
+		break;
+	case 2:
+		document.getElementById('overlay').innerHTML="";
+		overlay=0;
+	break;
+	}
+}
+
+function switchTo(value){
+	// Switching modes (Left/Right/Both Ears)
+	var color;
+	switch(value){
+		case "AL":
+			selHearingBands=[250,375,500,750,1000,1500];selHearingDBHL=[-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80];
+			value=LRmode;
+			break;
+		case "AH":
+			selHearingBands=[1500,2000,3000,4000,6000,8000];selHearingDBHL=[-5,0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80];
+			value=LRmode;
+			break;
+		case "O":
+			selHearingBands=[250,500,1000,2000,4000,8000];selHearingDBHL=[-5,0,5,10,15,20,30,40,50,60,70,80];
+			value=LRmode;
+			break;
+		}
+	switch(value){
+		case "B":
+			LRmode=value;
+			fileSuffixForLRMode="";
+			color="#060";
+			break;
+		case "L":
+			LRmode=value;
+			fileSuffixForLRMode="_L";
+			color="#009";
+			break;
+		case "R":
+			LRmode=value;
+			fileSuffixForLRMode="_R";
+			color="#900";
+			break;
+		}
+		audioArray=[];
+		fileNameArray=[];
+		tableGen(selHearingBands,selHearingDBHL,color);
+}
+
+function getUrlVars() {
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {vars[key] = value;});
+	return vars;
+}
+
+function checkAudioFileCompatibility(){
+	var a = document.createElement('audio');
+	if (!!(a.canPlayType && a.canPlayType('audio/ogg; codecs="vorbis"').replace(/no/, ''))) fileExt=".ogg";
+}
+	
+function play(soundFile){
+
+	var bCal=0;
+	if (soundFile.indexOf("calib")>=0) bCal=1;
+
+	var i=fileNameArray.indexOf(soundFile);
+	var clicked=document.getElementById(soundFile);
+	
+	if (!bCal) clearLast(soundFile);
+	
+	clicked.style.opacity = 1;
+
+	for (var k=0;k<audioArray.length;k++) {
+		if (k!=i && !isNaN(audioArray[k].duration)) {
+				audioArray[k].pause();
+				audioArray[k].currentTime=0;
+			}
+		}
+	
+	// play clicked
+	if (i==-1){ // never played before
+		clicked.className='audioButtonIsLoading';
+		clicked.onclick=''; 
+		fileNameArray.push(soundFile);
+		i=fileNameArray.indexOf(soundFile);
+		audioArray[i]=new Audio('https://hearingTest.online/AUDIO/'+soundFile+fileSuffixForLRMode+fileExt);
+		if (bCal) audioArray[i].onplay=function(){clicked.className='calibButtonIsPlaying'; clicked.onclick=function(){play(this.id);};}; else audioArray[i].onplay=function(){clicked.className='audioButtonIsPlaying'; clicked.onclick=function(){play(this.id);};};
+		if (bCal) audioArray[i].onpause=function(){clicked.className='calibButton'}; else audioArray[i].onpause=function(){clicked.className='audioButton'};	
+		if (bCal) audioArray[i].onended=function(){clicked.className='calibButton'}; else audioArray[i].onended=function(){clicked.className='audioButton'};
+		audioArray[i].loop=0;
+		audioArray[i].volume=1;
+		audioArray[i].play();
+	}
+	else { // has played or is playing.. or was loading
+		if (audioArray[i].readyState==0) {
+			if (bCal) clicked.className="calibButtonIsLoading"; else clicked.className="audioButtonIsLoading";
+		}
+		else {
+			if (bCal) audioArray[i].onplay=function(){clicked.className='calibButtonIsPlaying'; clicked.onclick=function(){play(this.id);};}; else audioArray[i].onplay=function(){clicked.className='audioButtonIsPlaying'; clicked.onclick=function(){play(this.id);};};
+			if (audioArray[i].paused) audioArray[i].play();
+			else audioArray[i].pause();
+		}
+	}
+	
+	if (!bCal) updateResultMatrix(soundFile);
+
+}
+
+function clearLast(soundFile){
+	var tmp=soundFile.split('_');
+	for (var k = 0; k<selHearingDBHL.length; k++) {
+		document.getElementById(tmp[0]+"_"+tmp[1]+"_"+selHearingDBHL[k]).style.opacity=0.6
+	}
+}
+
+</script>		
+		<!-- Google Auto Ads 
+		<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+		<script>
+			 (adsbygoogle = window.adsbygoogle || []).push({
+				  google_ad_client: "ca-pub-7097793963015175",
+				  enable_page_level_ads: true
+			 });
+		</script>
+		-->
+
+	</head>
+	
+	<body onload="init()">
+
+		<div class="header">
+			<div class="container">
+				<h1 class="header-heading">Online Hearing Test and Audiogram Printout</h1>
+			</div>
+		</div>
+
+		<div class="content">
+			<div class="container">
+				<div class="col1">
+				This website offers you one of the <u>easiest</u>, <u>fastest</u>, and <u>best hearing test</u> on the Internet. More than anything else, this one is also the <u>most private</u> that exists. We won't ask you to submit your email address or create an account before accessing your results. Your personal hearing data will not be used or shared with anyone else.
+<p>
+<blockquote>Although these test files have been carefully designed, this website is not a substitute for a proper hearing test. You are encouraged to consult an audiologist as soon as you seriously feel concerned about a possible hearing loss. Beware, some of the audio tests tones can be damaging (excessively loud) if used improperly. You will be safe though by following the sound level calibration procedure and always starting by playing the quieter files first.</blockquote>
+<p>
+The next three sections take you through the actual hearing test. The rest of the page will give you information about hearing loss, audiograms, and how to get the most reliable results out of this page's hearing test.<hr>
+				<h1>1. <b>Calibrate</b> <em>your sound levels</em></h1>
+<div class="imageright">
+<TABLE CLASS="sound">
+<TR>
+<TD><span class="calibButton" id="hearingTest.online.calibrated" onclick="play(this.id)"></span>
+</TD> 
+</TR>
+<TR><TD CLASS="description">Calibration<br>File</TD></TR> 
+</TABLE>
+</div>
+<p>
+<span class="orange">Using headphones, listen to the calibration audio file. Then, without your headphones on, rub your hands together closely in front of your nose, quickly and firmly, and try producing the same sound.</span>
+
+<blockquote>If you have trouble hearing the sound of your hands rubbing, the test is completed before it has even begun: you likely suffer from a <b>severe</b> hearing loss. If you are wearing hearing aids, you can put them on now, and use this test to check if they are working correctly.</blockquote>
+<p>
+<span class="orange">Adjust your computer's volume so that both levels match: the calibration file through your headphones, and your hands rubbing, without headphones. Once matched, do not change your levels anymore during the rest of the hearing test. </span>
+<hr>
+				<h1>2. <b>Listen</b> <em>to the individual test files</em></h1>
+<p>
+<!--
+<span class="orange">In a silent environment, play back the individual hearing test files, column by column, starting from the top left corner file (look for the &darr; arrow). Move down until a tone becomes (barely) audible, then switch to the next column. </span>
+
+<blockquote>Always start with the top files. The bottom files are for severe hearing losses, and will play very loudly for a normal hearing person!
+<br><br>
+Stop with the file whose tone becomes just audible - not the file above or below - then switch to the next column.</blockquote>
+-->
+<span class="orange">In a silent environment, starting from the top row, move down until you hear a tone. Do this for each column.
+</span></p>
+
+<blockquote>
+Always start with files on top of the table. The bottom files are for severe hearing losses, and will play very loudly for a normal hearing person!
+</blockquote>
+
+<p>
+<span class="orange">
+Stop with the file whose tone becomes just audible - not the file above or below - before switching to the next column.</span></p>
+
+<div id="theTable"></div>
+
+<p>
+<div class="centerButtons">
+<span class="btn" onclick="switchTo('B')">Test Both Ears</span>&nbsp;
+<span class="btnL" onclick="switchTo('L')">Left Ear Only</span>&nbsp;
+<span class="btnR" onclick="switchTo('R')">Right Ear Only</span>
+</div><hr>
+				<h1 class="highlight">3. <b>Review</b> <em>your personal audiogram</em></h1>
+<p>
+<p>
+Your personal hearing thresholds should now appear on the audiogram below. Ideally, the markers should be located on the top of the graph, around the zero range.
+<div class="theGrid">
+		<div id="audiogramGrid"><img src="/IMG/audiogram.png" alt="audiogram grid" width="350px" height="450px"></div>
+	<div id="overB250"></div><div id="overB375"></div><div id="overB500"></div><div id="overB750"></div><div id="overB1000"></div><div id="overB1500"></div><div id="overB2000"></div><div id="overB3000"></div><div id="overB4000"></div><div id="overB6000"></div><div id="overB8000"></div>
+	<div id="overL250"></div><div id="overL375"></div><div id="overL500"></div><div id="overL750"></div><div id="overL1000"></div><div id="overL1500"></div><div id="overL2000"></div><div id="overL3000"></div><div id="overL4000"></div><div id="overL6000"></div><div id="overL8000"></div>
+	<div id="overR250"></div><div id="overR375"></div><div id="overR500"></div><div id="overR750"></div><div id="overR1000"></div><div id="overR1500"></div><div id="overR2000"></div><div id="overR3000"></div><div id="overR4000"></div><div id="overR6000"></div><div id="overR8000"></div>
+	<div id="overlay"></div>
+</div>
+<div class="centerButtons">
+<span class="btn" onclick="overlaySwitch()">Overlay</span>&nbsp;
+<span class="btn" onclick="clearTable()">Clear Markers</span>&nbsp;
+<span class="btn" onclick="checkCompleted()">Print - Save - Bookmark</span>
+<br>
+<br>
+</div><p>
+This graph is similar to what your audiologist's system would produce during a hearing test, and plots the softest sounds you can hear across the different frequencies tested. 
+Ideally, the six markers should be located on the top of the graph, around the zero range. The next section explains the audiogram in detail.
+<p>
+Click the 'Overlay' button to add information on top of your audiogram.
+<blockquote>
+The first overlay outlines the area related to conversational speech. It is in the shape of a banana and is often referred to as the “speech banana.”  Vowels are located on the left side of the banana (the green area), and consonants are to the right (the blue area). Remember, all the sounds located above your individual hearing thresholds will be inaudible to you. If your personal markers are located inside (or worse, below) the speech banana, it means that your hearing will be missing part of the conversation, requiring your brain to compensate for this deficiency, by guessing words, for example.
+<br><br>
+The second overlay depicts some familiar sounds of our everyday life, such as rustling leaves, birds chirping, water dripping  and other common sounds.
+</blockquote>
+If you have mastered this hearing test and want to achieve a higher precision, try the alternate test which adds in-between frequencies and hearing levels. To keep the sound table small, the alternate test has been split in two frequency ranges. Make your choice below, proceed to section 2, then check your audiogram again.
+<p>
+<div class="centerButtons">
+<span class="btn" onclick="switchTo('AL')">Alt Low [250-1500Hz]</span>&nbsp;
+<span class="btn" onclick="switchTo('AH')">Alt High [1500-8000Hz]</span>
+<span class="btn" onclick="switchTo('O')">Back to Original Test</span>&nbsp;
+</div><hr>
+				<h1>What is an audiogram?</h1>
+<p>
+The frequencies (or pitches) that have been used during your hearing test are shown on the horizontal axis (the
+vertical lines). These frequencies are low on the left side of the audiogram (250Hz), then gradually climb to higher frequencies on the right side (8000 Hz or 8kHz). Humans hear frequencies from 20 Hz up to 20,000 Hz, but an audiogram only shows a subset of our hearing range: it focuses on the frequencies that are the most important for a clear understanding of speech (the spoken words).
+<p>
+The volume (loudness) required to reach a person's
+hearing threshold is shown on the vertical axis (the horizontal
+lines). These are expressed in deciBels Hearing Level (dBHL). 
+dBHL are not absolute loudness levels but represent a difference between your hearing and the average "normal" hearing. When scoring 0 dBHL, your hearing exactly matches the norm; higher values are signs of hearing loss. There are tolerances though: normal hearing is defined by thresholds lower than 15 dBHL at all frequencies, not strictly at 0 dBHL.
+The loudness scale goes from very soft sounds on top (-5 dBHL) to loud sounds at the bottom (80 dBHL).
+<p>
+As you perform this hearing test, markers will be set on the audiogram, and will correspond to your personal hearing thresholds. Once the test is completed, you can read the audiogram as follows: Every sound located above the markers will be inaudible to you. The <em>Overlay</em> button gives you an idea of what these sounds could be. <hr>
+								<blockquote>
+Keywords
+<br><br>Hearing, hearing loss, hearing test, audiometry, audiometric test, audiogram, audiometer, audiologist, hearing levels, hearing thresholds, pure tone audiometry, warble tones.</blockquote>
+				</div>
+				
+				<div class="col2">
+				<p><img class="img-responsive" src="/IMG/ear.png" alt=""></p>
+					<h2 class="hand">Welcome!</h2>
+<div class="stephane">
+<p>
+My name is <a href="http://stephanepigeon.com">Stéphane Pigeon</a>, I am an audio engineer and professional sound designer. I have been looking for a convenient and reliable way to assess my hearing, online.  As I couldn't find any online test that was able to evaluate one's hearing thresholds, I designed my own test, and put it online. Measuring hearing thresholds requires calibrated equipment. Therefore, most audiologists will tell you that such a test can not be put online, and just run on any computer. Well, yes, it can. Here I show how it is done. I do claim the intellectual property related to the hand rubbing calibration trick. <!--, as some hearing care companies already downloaded the source code from this page unscrupulously, copied my calibrated audio files, and have the test running on their website without my consent.--> The original test appeared on <a href="http://www.audiocheck.net/testtones_hearingtestaudiogram.php">AudioCheck</a> in July 2012. HearingTest.online offers an improved version of my original test, with upgraded test tones and a better user interface. 
+<p>
+Enjoy!
+<p>
+Stéphane
+</div><hr>
+					<h1>How to efficiently use this hearing test!</h1>
+<p>
+This online hearing test offers a convenient way to check your hearing over time, allowing you to detect a possible hearing loss or a degradation of your hearing as soon as possible, without the need to consult an audiologist for this routine check. Although this website has not been designed as a substitute for a proper hearing test, it will give you valuable information regarding your hearing when you need to:<p>
+<ul>
+<li> confirm your good hearing, and take a snapshot of your audiogram for future reference
+<li> confirm if your hearing has returned back to normal after your ears were stressed, such as during an extremely loud concert
+<li> precisely track how your hearing evolves over time
+<li> confirm your suspicions about a possible hearing loss
+<li> keep track of your hearing after your visit to your audiologist or primary care physician
+<li> assess the performance of your hearing aid(s)
+<li> diagnose hearing aid deficiencies
+</ul> 
+
+Technically, we are facing two situations: either the hearing test you perform is (somehow) calibrated, or it isn't (at all). In both cases, useful information can be obtained from this site, although of a different nature.
+<p>
+The calibrated condition assumes that you are using good headphones or speakers - their response must be flat across the tested frequency range (250-8000 Hz) - and you succeeded in calibrating your sound levels properly. In such a case, the precision of this hearing test is estimated at around 10 dBHL, which is good enough to diagnose a mild, moderate or severe hearing loss: simply, look at your threshold plots on the audiogram and give them a 10 dBHL tolerance.
+<p>
+The uncalibrated condition can be understood through the worst-case scenario: your headphones or speakers are poor performers, and you did not bother calibrating your levels as suggested in our first step. In such a situation, you won't be able to infer any information about your actual hearing loss, but you will still be able to use this website in a very reliable way through <em>differential testing</em>. 
+<p>
+<blockquote>
+<span class="orange">Differential Testing
+<br><br>
+All it takes it is to run the hearing test once to acquire a reference: note your  computer level settings precisely, and remember how your audiogram looks (or better, bookmark <a onclick="checkCompleted()">&rarr;&nbsp;this page</a>). By using these exact settings the next time you come back, any change in your audiogram will result from a change in your hearing. Even if the test was uncalibrated in the beginning, using the same computer settings and audio equipment from one test to the other, ensures that the changes you observe will be relevant to your hearing.</span></blockquote>
+<p>
+Differential testing can be useful in many situations:
+<ul>
+<li> keep track of your hearing, and feel reassured if it remains stable over time
+<li> confirm your hearing hasn't changed since your last visit to your audiologist
+<li> confirm your hearing aids keep working properly over time
+</ul>
+<p>
+Differential testing also encourages you to call your audiologist for an appointment, when your audiogram shows significant changes.
+<p>
+Differential testing requires that you run the hearing test at least once in order to acquire a reference. Do it now, and print (or bookmark) your results for future reference. This <a onclick="checkCompleted()"> printable page</a> has been designed for such a purpose.
+
+
+
+
+<hr>
+					<h2  class="hand">A word for the Audiologist visiting this page</h2>
+<div class="stephane">
+<p>
+I've been through a hearing incident myself and spent some time in hyperbaric oxygen therapy. One of the constant stresses I remember, was not entering the compression chamber, but the absence of any means that I could use to define what I perceived as an hearing loss, possibly exaggerated by my anxiety. This website will help people diagnosing changes in their hearing and encourage them to consult an audiologist sooner, when needed.
+<p>
+An online hearing test runs in a completely uncontrolled environment, and will never replace the calibrated test performed at your office. Yet, this simple test can be very informative, especially in differential testing conditions. 
+<p>
+My goal is to build one of the better - if not the best - online hearing tests available on the Internet. Currently, the test files are based on the <a href="http://www.iso.org/iso/catalogue_detail.htm?csnumber=38976">ISO 389-7:2005</a> international standard and use third octave band warble tones in order to minimize room and headphone resonance. Among the different standards in use, ISO 389-7:2005 is the one recommended by the British Society of Audiology, and does not rely on a particular type of headphones. 
+<p>
+Please do not hesitate to contribute to this website, and share your comments, thoughts and corrections with me. If you are convinced of the usefulness of such a website and have access to a calibrated audiometer, please consider performing your hearing test, and compare your results with those provided here. By sharing your offsets with me, I will be able to improve the calibration part of this test. The more data I get, the more statistically relevant it will become.
+<p>
+Thank you for your precious contribution!
+</div>
+
+
+
+<hr>
+					<h3>Featuring this test on your website</h3>
+<p>
+Be respectful, don't steal my code and files – they are protected by copyright – but provide a 
+link to HearingTest.online if you want to feature the test on your website. 
+For further inquiries, contact stephane 'at' hearingtest 'dot' online.
+<p>
+<hr>
+					
+				</div>
+			</div>
+		</div>
+		<div class="footer">
+			<div class="container">
+				&copy; Copyright 2012-2021 Dr. Ir. St&eacute;phane Pigeon
+			</div>
+		</div>
+		
+		<script async src="//static.getclicky.com/101366662.js"></script>
+	</body>
+</html>
